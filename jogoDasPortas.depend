@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1665942297 source:d:\development\github\jogodasportas-2semestre\jogodasportas\main.c
+	<stdio.h>
+	<stdlib.h>
+	<conio.h>
+	<locale.h>
+
