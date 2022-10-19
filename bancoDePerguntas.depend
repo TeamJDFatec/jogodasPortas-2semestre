@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1666191829 source:d:\meus documentos\faculdade - jogos digitais\2 semestre\programacao2\usando_structs\bancodeperguntas\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	<conio.h>
+

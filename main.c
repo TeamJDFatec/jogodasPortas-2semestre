@@ -1,232 +1,149 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <conio.h>
-#include <locale.h>
 
-#define QUESTIONS_PATH "questions.vd"
+#define NOME_ARQ "perguntas.quiz"
+#define QTD_PERGUNTAS 10
 
 typedef struct
 {
+    int indice;
+    char pergunta[200];
+    char resposta1[100];
+    char resposta2[100];
+    char resposta3[100];
+    int correta;
+}tPergunta;
 
-    char question[200];
-    char alternative1[100];
-    char alternative2[100];
-    char alternative3[100];
-    int correct;
-
-} tQuestions;
-
-
-int randomQuestion(int limite)
+int geradorAleatorio()
 {
-    return rand() % limite;
+    int indice = 0;
+
+    srand(time(NULL));
+
+    indice = rand() % QTD_PERGUNTAS;
+
+    return indice;
 }
 
-void splitData(char *line, int line_tam, tQuestions *question, int qsLine)
+void limpaVetor(char *pergunta, int tam)
 {
-    int countDelimiter = 0;
-    int auxCount = 0;
-
-
-
-    for(int i = 0; i < line_tam; i++)
+    for(int i = 0; i < tam; i++)
     {
-        if(line[i] == ';')
-        {
-            auxCount = 0;
-            countDelimiter ++;
-            continue;
-        }
-
-        if(countDelimiter == 0)
-        {
-            question[qsLine].question[auxCount] = line[i];
-        }
-
-        if(countDelimiter == 1)
-        {
-            question[qsLine].alternative1[auxCount] = line[i];
-        }
-
-        if(countDelimiter == 2)
-        {
-            question[qsLine].alternative2[auxCount] = line[i];
-        }
-
-        if(countDelimiter == 3)
-        {
-            question[qsLine].alternative3[auxCount] = line[i];
-        }
-
-        if(countDelimiter == 4)
-        {
-            question[qsLine].correct = line[i];
-        }
-
-        auxCount ++;
+        pergunta[i] = '\0';
     }
-
 }
 
-void cleanQuestions(tQuestions *qs, int lines)
-{
-    int len = 0;
-
-    for(int i = 0; i < lines; i++)
-    {
-        len = sizeof(qs->question);
-        for(int j = 0; j < len; j++)
-        {
-            qs[i].question[j] = '\0';
-        }
-
-        len = sizeof(qs->alternative1);
-        for(int j = 0; j < len; j++)
-        {
-            qs[i].alternative1[j] = '\0';
-        }
-
-        len = sizeof(qs->alternative2);
-        for(int j = 0; j < len; j++)
-        {
-            qs[i].alternative2[j] = '\0';
-        }
-
-        len = sizeof(qs->alternative3);
-        for(int j = 0; j < len; j++)
-        {
-            qs[i].alternative3[j] = '\0';
-        }
-
-    }
-
-}
-
-void setUpQuestions(tQuestions *qs, int totalQuestions)
+void criaPergunta()
 {
     FILE *arq;
-    int tam = sizeof(tQuestions);
-    char arqLine[tam];
-    int qsLine = 0;
 
-    arq = fopen(QUESTIONS_PATH, "r");
+    tPergunta p;
 
-    if (arq == NULL)
+    p.indice = geradorAleatorio();
+    limpaVetor(&p.pergunta, 200);
+    strcpy(p.pergunta, "Qual meu nome?");
+    limpaVetor(&p.resposta1, 100);
+    strcpy(p.resposta1, "Roberto");
+    limpaVetor(&p.resposta2, 100);
+    strcpy(p.resposta2, "Luciano");
+    limpaVetor(&p.resposta3, 100);
+    strcpy(p.resposta3, "Eduardo");
+    p.correta = 3;
+
+    arq = fopen(NOME_ARQ, "ab");
+
+    if(arq == NULL)
     {
-        printf("Erro ao abrir arquivo");
+        printf("Erro ao abrir o arquivo de perguntas para escrita!");
     }
     else
     {
-        cleanQuestions(qs, totalQuestions);
 
-        fgets(arqLine, tam, arq);
-        splitData(arqLine, tam, qs, qsLine);
-        qsLine++;
+        fwrite(&p, sizeof(tPergunta), 1, arq);
+        fputc('\n', arq);
 
-        if(ferror(arq))
+        fclose(arq);
+    }
+}
+
+void guardaPergunta(tPergunta *perguntas)
+{
+    FILE *arq;
+    arq = fopen(NOME_ARQ, "rb");
+    tPergunta linha;
+    int i = 0;
+
+    if(arq == NULL)
+    {
+        printf("Erro ao abrir o arquivo de perguntas para leitura!");
+    }
+    else
+    {
+        fread(&linha, sizeof(tPergunta), 1, arq);
+        while(!feof(arq))
         {
-            printf("Erro ao ler arquivo");
-        }
-        else
-        {
-
-            do
-            {
-                fgets(arqLine, tam, arq);
-                splitData(arqLine, tam, qs, qsLine);
-                qsLine++;
-
-            }
-            while(qsLine <= totalQuestions);
-
+            perguntas[i] = linha;
+            fread(&linha, sizeof(tPergunta), 1, arq);
+            i++;
         }
 
         fclose(arq);
     }
 }
 
-int charToInt(char answer)
+void exibePergunta()
 {
-    switch(answer)
+
+}
+
+void limpaArquivo()
+{
+    int retorno = 0;
+    char nome[] = NOME_ARQ;
+
+    retorno = remove(nome);
+
+    if(retorno == 0)
     {
-    case 'a':
-        return 1;
-    case 'A':
-        return 1;
-    case 'b':
-        return 2;
-    case 'B':
-        return 2;
-    case 'c':
-        return 3;
-    case 'C':
-        return 3;
-    default:
-        return 0;
+        printf("\n\nArquivo foi deletado com sucesso!\n");
+    }
+    else
+    {
+        printf("\n\nErro ao deletar o arquivo desejado!\n");
     }
 }
 
 int main()
 {
+    tPergunta perguntas[QTD_PERGUNTAS];
+    int resposta;
 
-    setlocale(LC_ALL, "Portuguese");
+    criaPergunta();
+    guardaPergunta(perguntas);
 
-    tQuestions qs[10];
-    setUpQuestions(qs, 9);
+    printf("\n\n%d\n", perguntas[0].indice);
+    printf("%s\n", perguntas[0].pergunta);
+    printf("%s\n", perguntas[0].resposta1);
+    printf("%s\n", perguntas[0].resposta2);
+    printf("%s\n", perguntas[0].resposta3);
+    printf("%d\n", perguntas[0].correta);
 
-    int chosenDoor = 0;
-    int question = 0;
-    int questionDoor1 = randomQuestion(9);
-    int questionDoor2 = randomQuestion(9);
-    int questionDoor3 = randomQuestion(9);
+    printf("\nEscolha sua resposta: ");
+    scanf("%d", &resposta);
 
-    char answer;
-
-    do
+    if(resposta == perguntas[0].correta)
     {
-        system("cls");
-        printf("\nEscolha uma Porta (1, 2 ou 3):\n");
-        scanf("%d", &chosenDoor);
-        fflush(stdin);
-
-        chosenDoor = chosenDoor != 1 && chosenDoor != 2 && chosenDoor != 3 ? 0 : chosenDoor;
-
-        if(chosenDoor == 0)
-        {
-            printf("Porta inválida! Clique em uma tecla para continuar");
-            getch();
-        }
-
-    }while(chosenDoor == 0);
-
-    switch(chosenDoor)
+        printf("Parabens, voce acertou a resposta!");
+    }
+    else
     {
-    case(1):
-        question = questionDoor1;
-        break;
-    case(2):
-        question = questionDoor2;
-        break;
-    case(3):
-        question = questionDoor3;
-        break;
-    default:
-        printf("Erro!");
-        break;
+        printf("Infelizmente voce errou, a resposta correta era %d", perguntas[0].correta);
     }
 
-    printf("\n\n%s\n", qs[question].question);
-    printf("\n%s\n", qs[question].alternative1);
-    printf("%s\n", qs[question].alternative2);
-    printf("%s\n", qs[question].alternative3);
-
-    printf("Escolha sua resposta (a, b ou c): ");
-    gets(answer);
-
-
-
-
-    printf("%d\n", qs[question].correct);
+    limpaArquivo();
 
     return 0;
 }
