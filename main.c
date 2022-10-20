@@ -147,22 +147,44 @@ void setUpQuestions(tQuestions *qs, int totalQuestions)
     }
 }
 
+int charToInt(char answer)
+{
+    switch(answer)
+    {
+    case 'a':
+        return 1;
+    case 'A':
+        return 1;
+    case 'b':
+        return 2;
+    case 'B':
+        return 2;
+    case 'c':
+        return 3;
+    case 'C':
+        return 3;
+    default:
+        return 0;
+    }
+}
+
 int main()
 {
 
     setlocale(LC_ALL, "Portuguese");
 
-    tQuestions qs[QUANTITY_QUESTIONS];
-    setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
-
     int jogando = 1;
+
+    tQuestions qs[10];
+    setUpQuestions(qs, 9);
 
     int chosenDoor = 0;
     int question = 0;
-    int questionDoor1 = randomQuestion(QUANTITY_QUESTIONS - 1);
-    int questionDoor2 = randomQuestion(QUANTITY_QUESTIONS - 1);
-    int questionDoor3 = randomQuestion(QUANTITY_QUESTIONS - 1);
+    int questionDoor1 = randomQuestion(9);
+    int questionDoor2 = randomQuestion(9);
+    int questionDoor3 = randomQuestion(9);
 
+    char answer;
 
     do
     {
@@ -208,7 +230,15 @@ int main()
     }while(jogando);
 
 
-    printf("%c\n", qs[question].correct);
+    printf("\n\n%s\n", qs[question].question);
+    printf("\n%s\n", qs[question].alternative1);
+    printf("%s\n", qs[question].alternative2);
+    printf("%s\n", qs[question].alternative3);
 
+    printf("Escolha sua resposta (a, b ou c): ");
+    gets(answer);
+
+
+    printf("%d\n", qs[question].correct);
     return 0;
 }
