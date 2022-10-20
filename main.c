@@ -147,25 +147,33 @@ void setUpQuestions(tQuestions *qs, int totalQuestions)
     }
 }
 
-int charToInt(char answer)
+char transformAnswer(char answer)
 {
     switch(answer)
     {
     case 'a':
-        return 1;
+        return '1';
     case 'A':
-        return 1;
+        return '1';
     case 'b':
-        return 2;
+        return '2';
     case 'B':
-        return 2;
+        return '2';
     case 'c':
-        return 3;
+        return '3';
     case 'C':
-        return 3;
+        return '3';
     default:
-        return 0;
+        return '0';
     }
+}
+
+int answerValidator(tQuestions *qs, int question, char answer)
+{
+
+    char auxAnswer = transformAnswer(answer);
+
+    return qs[question].correct == auxAnswer ? 1 : 0;
 }
 
 int main()
@@ -188,7 +196,13 @@ int main()
 
     do
     {
+
+        questionDoor1 = randomQuestion(9);
+        questionDoor2 = randomQuestion(9);
+        questionDoor3 = randomQuestion(9);
+
         do
+
         {
             system("cls");
             printf("\nEscolha uma Porta (1, 2 ou 3):\n");
@@ -223,22 +237,26 @@ int main()
         }
 
         printf("\n\n%s\n", qs[question].question);
-        printf("%s\n", qs[question].alternative1);
+        printf("\n%s\n", qs[question].alternative1);
         printf("%s\n", qs[question].alternative2);
         printf("%s\n", qs[question].alternative3);
+
+        printf("Escolha sua resposta (a, b ou c): ");
+        scanf("%c", &answer);
+
+        if(!answerValidator(qs, question, answer))
+        {
+            printf("\nResposta errada!\n");
+            jogando = 0;
+        }
+        else
+        {
+            printf("\nResposta Correta!");
+            getch();
+        }
 
     }while(jogando);
 
 
-    printf("\n\n%s\n", qs[question].question);
-    printf("\n%s\n", qs[question].alternative1);
-    printf("%s\n", qs[question].alternative2);
-    printf("%s\n", qs[question].alternative3);
-
-    printf("Escolha sua resposta (a, b ou c): ");
-    gets(answer);
-
-
-    printf("%d\n", qs[question].correct);
     return 0;
 }
