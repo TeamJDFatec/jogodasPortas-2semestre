@@ -4,6 +4,7 @@
 #include <locale.h>
 
 #define QUESTIONS_PATH "questions.vd"
+#define QUANTITY_QUESTIONS 20
 
 typedef struct
 {
@@ -12,7 +13,7 @@ typedef struct
     char alternative1[100];
     char alternative2[100];
     char alternative3[100];
-    int correct;
+    char correct;
 
 } tQuestions;
 
@@ -61,6 +62,7 @@ void splitData(char *line, int line_tam, tQuestions *question, int qsLine)
         if(countDelimiter == 4)
         {
             question[qsLine].correct = line[i];
+            break;
         }
 
         auxCount ++;
@@ -150,53 +152,63 @@ int main()
 
     setlocale(LC_ALL, "Portuguese");
 
-    tQuestions qs[10];
-    setUpQuestions(qs, 10);
+    tQuestions qs[QUANTITY_QUESTIONS];
+    setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
+
+    int jogando = 1;
 
     int chosenDoor = 0;
     int question = 0;
-    int questionDoor1 = randomQuestion(10);
-    int questionDoor2 = randomQuestion(10);
-    int questionDoor3 = randomQuestion(10);
+    int questionDoor1 = randomQuestion(QUANTITY_QUESTIONS - 1);
+    int questionDoor2 = randomQuestion(QUANTITY_QUESTIONS - 1);
+    int questionDoor3 = randomQuestion(QUANTITY_QUESTIONS - 1);
+
 
     do
     {
-        system("cls");
-        printf("\nEscolha uma Porta (1, 2 ou 3):\n");
-        scanf("%d", &chosenDoor);
-        fflush(stdin);
-
-        chosenDoor = chosenDoor != 1 && chosenDoor != 2 && chosenDoor != 3 ? 0 : chosenDoor;
-
-        if(chosenDoor == 0)
+        do
         {
-            printf("Porta inválida! Clique em uma tecla para continuar");
-            getch();
+            system("cls");
+            printf("\nEscolha uma Porta (1, 2 ou 3):\n");
+            scanf("%d", &chosenDoor);
+            fflush(stdin);
+
+            chosenDoor = chosenDoor != 1 && chosenDoor != 2 && chosenDoor != 3 ? 0 : chosenDoor;
+
+            if(chosenDoor == 0)
+            {
+                printf("Porta inválida! Clique em uma tecla para continuar");
+                getch();
+            }
+
+        }while(chosenDoor == 0);
+
+
+        switch(chosenDoor)
+        {
+        case(1):
+            question = questionDoor1;
+            break;
+        case(2):
+            question = questionDoor2;
+            break;
+        case(3):
+            question = questionDoor3;
+            break;
+        default:
+            printf("Erro!");
+            break;
         }
 
-    }while(chosenDoor == 0);
+        printf("\n\n%s\n", qs[question].question);
+        printf("%s\n", qs[question].alternative1);
+        printf("%s\n", qs[question].alternative2);
+        printf("%s\n", qs[question].alternative3);
 
-    switch(chosenDoor)
-    {
-    case(1):
-        question = questionDoor1;
-        break;
-    case(2):
-        question = questionDoor2;
-        break;
-    case(3):
-        question = questionDoor3;
-        break;
-    default:
-        printf("Erro!");
-        break;
-    }
+    }while(jogando);
 
-    printf("\n\n%s\n", qs[question].question);
-    printf("%s\n", qs[question].alternative1);
-    printf("%s\n", qs[question].alternative2);
-    printf("%s\n", qs[question].alternative3);
-    printf("%d\n", qs[question].correct);
+
+    printf("%c\n", qs[question].correct);
 
     return 0;
 }
