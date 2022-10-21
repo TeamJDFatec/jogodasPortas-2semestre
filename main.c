@@ -5,6 +5,7 @@
 
 #define QUESTIONS_PATH "questions.vd"
 #define QUANTITY_QUESTIONS 20
+#define POINT_RATE 100
 
 typedef struct
 {
@@ -16,6 +17,13 @@ typedef struct
     char correct;
 
 } tQuestions;
+
+typedef struct
+{
+    char playerName[100];
+    int score;
+
+} tRanking;
 
 
 int randomQuestion(int limite)
@@ -181,13 +189,15 @@ int main()
 
     setlocale(LC_ALL, "Portuguese");
 
-    int jogando = 1;
+    int playing = 1;
+    int points = 0;
 
     tQuestions qs[10];
     setUpQuestions(qs, 9);
 
     int chosenDoor = 0;
     int question = 0;
+
     int questionDoor1 = randomQuestion(9);
     int questionDoor2 = randomQuestion(9);
     int questionDoor3 = randomQuestion(9);
@@ -204,7 +214,11 @@ int main()
         do
 
         {
+
             system("cls");
+
+            printf("SCORE: %d\n\n", points);
+
             printf("\nEscolha uma Porta (1, 2 ou 3):\n");
             scanf("%d", &chosenDoor);
             fflush(stdin);
@@ -241,21 +255,23 @@ int main()
         printf("%s\n", qs[question].alternative2);
         printf("%s\n", qs[question].alternative3);
 
-        printf("Escolha sua resposta (a, b ou c): ");
+        printf("\nEscolha sua resposta (a, b ou c): ");
         scanf("%c", &answer);
 
         if(!answerValidator(qs, question, answer))
         {
             printf("\nResposta errada!\n");
-            jogando = 0;
+            playing = 0;
         }
         else
         {
             printf("\nResposta Correta!");
+            points += POINT_RATE;
             getch();
         }
 
-    }while(jogando);
+
+    }while(playing);
 
 
     return 0;
