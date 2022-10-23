@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <locale.h>
+#include <time.h>
 
 #define QUESTIONS_PATH "questions.vd"
-#define QUANTITY_QUESTIONS 20
+#define QUANTITY_QUESTIONS 21
 
 typedef struct
 {
@@ -17,10 +18,39 @@ typedef struct
 
 } tQuestions;
 
+int aux = 0;
 
-int randomQuestion(int limite)
+int randomQuestion(int limite, int *val_used)
 {
-    return rand() % limite;
+    srand(time(NULL));
+
+    int val;
+
+    val = rand() % limite;
+
+    if(aux == 0)
+    {
+        for(int i = 0; i < QUANTITY_QUESTIONS; i++)
+        {
+            //deixando todos os valores como nulos para que nao haja erro.
+            val_used[i] = -1;
+        }
+    }
+
+    for(int j = 0; j < QUANTITY_QUESTIONS; j++)
+    {
+        if(val == val_used[j])
+        {
+            val = rand() % limite;
+            j = 0;
+        }
+    }
+
+    val_used[aux] = val;
+
+    aux++;
+
+    return val;
 }
 
 void splitData(char *line, int line_tam, tQuestions *question, int qsLine)
@@ -182,24 +212,27 @@ int main()
     setlocale(LC_ALL, "Portuguese");
 
     int jogando = 1;
+    int rounds = 1;
 
-    tQuestions qs[10];
-    setUpQuestions(qs, 9);
+    int val_used[QUANTITY_QUESTIONS];
+
+    tQuestions qs[QUANTITY_QUESTIONS];
+    setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
 
     int chosenDoor = 0;
     int question = 0;
-    int questionDoor1 = randomQuestion(9);
-    int questionDoor2 = randomQuestion(9);
-    int questionDoor3 = randomQuestion(9);
+    int questionDoor1;// = randomQuestion(QUANTITY_QUESTIONS - 1);
+    int questionDoor2;// = randomQuestion(QUANTITY_QUESTIONS - 1);
+    int questionDoor3;// = randomQuestion(QUANTITY_QUESTIONS - 1);
 
     char answer;
 
     do
     {
 
-        questionDoor1 = randomQuestion(9);
-        questionDoor2 = randomQuestion(9);
-        questionDoor3 = randomQuestion(9);
+        questionDoor1 = randomQuestion(QUANTITY_QUESTIONS - 1, val_used);
+        questionDoor2 = randomQuestion(QUANTITY_QUESTIONS - 1, val_used);
+        questionDoor3 = randomQuestion(QUANTITY_QUESTIONS - 1, val_used);
 
         do
 
@@ -236,6 +269,8 @@ int main()
             break;
         }
 
+        printf("\n\n%d\n\n\n", question);
+
         printf("\n\n%s\n", qs[question].question);
         printf("\n%s\n", qs[question].alternative1);
         printf("%s\n", qs[question].alternative2);
@@ -247,11 +282,26 @@ int main()
         if(!answerValidator(qs, question, answer))
         {
             printf("\nResposta errada!\n");
-            jogando = 0;
+            //jogando = 0;
+
+            if(rounds > QUANTITY_QUESTIONS / 3)
+            {
+                jogando = 0;
+            }
+
+            rounds++;
         }
         else
         {
             printf("\nResposta Correta!");
+
+            if(rounds >= QUANTITY_QUESTIONS / 3)
+            {
+                jogando = 0;
+            }
+
+            rounds++;
+
             getch();
         }
 
