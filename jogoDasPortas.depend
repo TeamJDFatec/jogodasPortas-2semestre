@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1666567996 source:d:\meus documentos\faculdade - jogos digitais\2 semestre\programacao2\jogoportas\versao4 - perguntas\jogodasportas-2semestre-master\main.c
+	<stdio.h>
+	<stdlib.h>
+	<conio.h>
+	<locale.h>
+	<time.h>
+
