@@ -241,46 +241,6 @@ void confirmExit()
     }
 }
 
-void menu()
-{
-    int choice;
-    int bContinue = 1;
-
-    do
-    {
-        system("cls");
-
-        printf("****** Jogo das Portas ******\n\n\n");
-
-        printf("\t1 - Jogar\n");
-        printf("\t2 - Tutorial\n");
-        printf("\t3 - Sair\n");
-
-        fflush(stdin);
-        scanf("%d", &choice);
-
-        if(choice == 3)
-        {
-            confirmExit();
-        }
-
-        switch(choice)
-        {
-            case 1:
-                bContinue = 0;
-                break;
-            case 2:
-                tutorial();
-                bContinue = 0;
-                break;
-            default:
-                bContinue = 1;
-                break;
-        }
-
-    }while(bContinue == 1);
-}
-
 void screen(FILE *map, int size)
 {
     char doors[size];
@@ -349,14 +309,12 @@ void fullScreen()
     system("mode con cols=200 lines=40");
 }
 
-int main()
+void play()
 {
-    setlocale(LC_ALL, "Portuguese");
-    system("title Jogo das Portas");
-
     FILE *map;
     tQuestions qs[QUANTITY_QUESTIONS];
     setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
+
 
     int playing = 1;
     int points = 0;
@@ -371,10 +329,6 @@ int main()
     int questionDoor2;
     int questionDoor3;
     char answer;
-
-    fullScreen();
-
-    menu();
 
     do
     {
@@ -457,7 +411,7 @@ int main()
             printf("\nResposta Correta!");
             points += POINT_RATE;
 
-            if(round >= QUANTITY_QUESTIONS)
+            if(round + 1 >= QUANTITY_QUESTIONS -1)
             {
                 playing = 0;
             }
@@ -469,6 +423,58 @@ int main()
 
 
     }while(playing);
+}
+
+
+void menu()
+{
+    int choice;
+    int bContinue = 1;
+
+    do
+    {
+        system("cls");
+
+        printf("****** Jogo das Portas ******\n\n\n");
+
+        printf("\t1 - Jogar\n");
+        printf("\t2 - Tutorial\n");
+        printf("\t3 - Sair\n");
+
+        fflush(stdin);
+        scanf("%d", &choice);
+
+        if(choice == 3)
+        {
+            confirmExit();
+        }
+
+        switch(choice)
+        {
+            case 1:
+                play();
+                bContinue = 1;
+                break;
+            case 2:
+                tutorial();
+                bContinue = 0;
+                break;
+            default:
+                bContinue = 1;
+                break;
+        }
+
+    }while(bContinue == 1);
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Portuguese");
+    system("title Jogo das Portas");
+
+    fullScreen();
+
+    menu();
 
     return 0;
 }
