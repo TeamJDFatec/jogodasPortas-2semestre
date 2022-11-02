@@ -7,7 +7,8 @@
 
 #define QUESTIONS_PATH "questions.vd"
 #define POINT_RATE 100
-#define QUANTITY_QUESTIONS 21
+#define QUANTITY_QUESTIONS 30
+#define QUANTITY_ROUNDS 10
 
 #define TAM_PORTAS 71
 #define TAM_PORTAS_ABERTA 55
@@ -33,7 +34,7 @@ typedef struct
 int questionAlreadyViewed(int *viwedQuestions, int question, int round)
 {
 
-    for(int i = 0; i < round; i++)
+    for(int i = 0; i <= round; i++)
     {
         if(question == viwedQuestions[i])
         {
@@ -44,16 +45,19 @@ int questionAlreadyViewed(int *viwedQuestions, int question, int round)
     return 0;
 }
 
-int randomQuestion(int limite, int *qs_used, int round)
+int randomQuestion(int limite, int round)
 {
     srand(time(NULL));
     int qs;
+    int qs_used[QUANTITY_QUESTIONS];
 
     do
     {
         qs = rand() % limite;
 
     }while(questionAlreadyViewed(qs_used, qs, round));
+
+    qs_used[round] = qs;
 
     return qs;
 }
@@ -209,37 +213,6 @@ int answerValidator(tQuestions *qs, int question, char answer)
     return qs[question].correct == auxAnswer ? 1 : 0;
 }
 
-void tutorial()
-{
-    printf("Tutorial...\n");
-    system("pause");
-}
-
-
-void confirmExit()
-{
-    char confirm;
-
-    do
-    {
-        system("cls");
-        printf("\nTem certeza que deseja sair? (s/n)");
-
-        confirm = tolower(getch());
-
-        if(confirm != 's' && confirm != 'n')
-        {
-            printf("\nDigite um valor válido por favor!\n");
-            system("pause");
-        }
-
-    }while(confirm != 's' && confirm != 'n');
-
-    if(confirm == 's')
-    {
-        exit(1);
-    }
-}
 
 void screen(FILE *map, int size)
 {
@@ -256,6 +229,7 @@ void screen(FILE *map, int size)
     printf("%s", doors);
     printf("\n\n");
 }
+
 
 void openDoor(int chosenDoor)
 {
@@ -304,6 +278,95 @@ void openDoor(int chosenDoor)
     fclose(doors);
 }
 
+void tutorial()
+{
+    int bContinue = 1;
+    int chosenDoor = 0;
+    char answer;
+    FILE *map;
+
+    map = fopen("mapa.txt", "r");
+    if(map == NULL)
+    {
+        printf("Erro ao abrir o mapa!");
+    }
+    else
+    {
+        screen(map, TAM_PORTAS);
+        fclose(map);
+    }
+
+    do
+    {
+        printf("\nPor nível, há 3 portas, cada uma escondendo uma pergunta!\n\n");
+        printf("\nEscolha a porta 1 e pressione ENTER para acessá-la:\n");
+        scanf("%d", &chosenDoor);
+        fflush(stdin);
+
+        chosenDoor = chosenDoor != 1 ? 0 : chosenDoor;
+
+        if(chosenDoor == 0)
+        {
+            printf("\nDigite 1 para concluirmos o tutorial! Clique em uma tecla para continuar");
+            getch();
+        }
+    }while(chosenDoor == 0);
+
+
+    do
+    {
+        system("cls");
+        openDoor(chosenDoor);
+
+        printf("\n\nAo acessar uma porta, é apresentada a pergunta que nela estava escondida!\n\n");
+        printf("Responda corretamente para vencer o jogo!\n");
+
+        printf("\nQuem foram os desenvolvedores do jogo? (a/b/c)\n\n");
+        printf("a) Eduardo A. Zampieri e Victor M. C. da Silva.\n");
+        printf("b) Isaac Newton e Thomas Edison.\n");
+        printf("c) Batman e Superman.\n\n");
+
+        printf("Digite sua resposta: \n");
+        answer = tolower(getchar());
+        fflush(stdin);
+
+        if(answer == 'a')
+        {
+            bContinue = 0;
+        }
+        else
+        {
+            printf("Digite a resposta correta! Dica - a letra 'a' está bem suspeita!\n\n");
+            system("pause");
+        }
+    }while(bContinue);
+}
+
+void confirmExit()
+{
+    char confirm;
+
+    do
+    {
+        system("cls");
+        printf("\nTem certeza que deseja sair? (s/n)");
+
+        confirm = tolower(getch());
+
+        if(confirm != 's' && confirm != 'n')
+        {
+            printf("\nDigite um valor válido por favor!\n");
+            system("pause");
+        }
+
+    }while(confirm != 's' && confirm != 'n');
+
+    if(confirm == 's')
+    {
+        exit(1);
+    }
+}
+
 void fullScreen()
 {
     system("mode con cols=200 lines=40");
@@ -315,12 +378,9 @@ void play()
     tQuestions qs[QUANTITY_QUESTIONS];
     setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
 
-
     int playing = 1;
     int points = 0;
     int round = 0;
-
-    int qs_used[QUANTITY_QUESTIONS];
 
     int chosenDoor = 0;
     int question = 0;
@@ -333,9 +393,9 @@ void play()
     do
     {
 
-        questionDoor1 = randomQuestion(QUANTITY_QUESTIONS - 1, qs_used, round);
-        questionDoor2 = randomQuestion(QUANTITY_QUESTIONS - 1, qs_used, round);
-        questionDoor3 = randomQuestion(QUANTITY_QUESTIONS - 1, qs_used, round);
+        questionDoor1 = randomQuestion(QUANTITY_QUESTIONS - 1, round);
+        questionDoor2 = randomQuestion(QUANTITY_QUESTIONS - 1, round);
+        questionDoor3 = randomQuestion(QUANTITY_QUESTIONS - 1, round);
 
         do
 
@@ -391,7 +451,7 @@ void play()
             break;
         }
 
-        qs_used[round] = question;
+        //qs_used[round] = question;
 
         printf("\n\n%s\n", qs[question].question);
         printf("\n%s\n", qs[question].alternative1);
@@ -404,25 +464,25 @@ void play()
         if(!answerValidator(qs, question, answer))
         {
             printf("\nResposta errada!\n");
-            playing = 0;
         }
         else
         {
             printf("\nResposta Correta!");
             points += POINT_RATE;
+        }
 
-            if(round + 1 >= QUANTITY_QUESTIONS -1)
-            {
-                playing = 0;
-            }
+        round++;
 
-            round++;
+        if(round + 1 == QUANTITY_ROUNDS)
+        {
+            playing = 0;
         }
 
             getch();
 
 
     }while(playing);
+
 }
 
 
@@ -457,7 +517,7 @@ void menu()
                 break;
             case 2:
                 tutorial();
-                bContinue = 0;
+                bContinue = 1;
                 break;
             default:
                 bContinue = 1;
