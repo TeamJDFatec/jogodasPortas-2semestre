@@ -311,7 +311,7 @@ void tutorial()
 
         if(chosenDoor == 0)
         {
-            printf("\nDigite 1 para concluirmos o tutorial! Clique em uma tecla para continuar");
+            printf("\nDigite 1 para prosseguir com o tutorial! Clique em uma tecla para continuar");
             getch();
         }
     }while(chosenDoor == 0);
@@ -323,7 +323,7 @@ void tutorial()
         openDoor(chosenDoor);
 
         printf("\n\nAo acessar uma porta, é apresentada a pergunta que nela estava escondida!\n\n");
-        printf("Responda corretamente para vencer o jogo!\n");
+        printf("Responda corretamente para acumular pontos no jogo!\n");
 
         printf("\nQuem foram os desenvolvedores do jogo? (a/b/c)\n\n");
         printf("a) Eduardo A. Zampieri e Victor M. C. da Silva.\n");
@@ -344,6 +344,10 @@ void tutorial()
             system("pause");
         }
     }while(bContinue);
+
+    system("cls");
+    printf("Parabéns, você concluiu o tutorial!\n\n");
+    system("pause");
 }
 
 void confirmExit()
@@ -378,20 +382,48 @@ void fullScreen()
 
 int pauseGame()
 {
-    int choose;
-    system("cls");
+    char choose;
 
-    printf("1 - Resume\n");
-    printf("2 - Exit");
-    scanf("%d", &choose);
-
-    switch(choose)
+    do
     {
-        case 1:
-            return 1;
+        system("cls");
+
+        printf("1 - Resume\n");
+        printf("2 - Quit\n\n");
+        printf("Digite aqui: ");
+        scanf("%c", &choose);
+
+        switch(choose)
+        {
+            case '1':
+                return 1;
+                break;
+            case '2':
+                return 0;
+                break;
+            default:
+                continue;
+                break;
+        }
+    }while(1);
+
+}
+
+char convertToString(char correct_answer)
+{
+    switch(correct_answer)
+    {
+        case '1':
+            return 'a';
             break;
-        case 2:
-            return 0;
+        case '2':
+            return 'b';
+            break;
+        case '3':
+            return 'c';
+            break;
+        default:
+            return '0';
             break;
     }
 }
@@ -489,6 +521,7 @@ void play()
     int aux_para_aleatoriedade = 0;
 
     char ch;
+    int validadeQuit = 0;
 
     char playerName[SIZE_PLAYER_NAME];
     int playing = 1;
@@ -578,7 +611,17 @@ void play()
 
         if(!answerValidator(qs, question, answer))
         {
-            printf("\nResposta errada!\n");
+            //printf("\nResposta errada!\n");
+            answer = convertToString(qs[question].correct);
+
+            if(answer == '0')
+            {
+                printf("A pergunta não tem resposta correta!");
+            }
+            else
+            {
+                printf("Resposta errada! A resposta correta era a letra '%c'.", answer);
+            }
         }
         else
         {
@@ -588,12 +631,10 @@ void play()
 
         round++;
 
-        if(round + 1 == QUANTITY_ROUNDS + 1)
+        if(round == QUANTITY_ROUNDS)
         {
             playing = 0;
         }
-
-        //getch();
 
         if(!kbhit())
         {
@@ -603,20 +644,27 @@ void play()
             if((int)ch == 27)
             {
                 playing = pauseGame();
+                if(playing == 0)
+                {
+                    validadeQuit = 1;
+                }
             }
         }
 
 
     }while(playing);
 
+    if(validadeQuit == 0)
+    {
+        printf("\n\nParabens, você terminou o jogo!\n");
+        printf("\nDigite seu nome para o Ranking: ");
+        fflush(stdin);
+        fgets(playerName, SIZE_PLAYER_NAME, stdin);
 
-    printf("\n\nParabens, você terminou o jogo!\n");
-    printf("\nDigite seu nome para o Ranking: ");
-    fflush(stdin);
-    fgets(playerName, SIZE_PLAYER_NAME, stdin);
+        savePlayerPoints(playerName, SIZE_PLAYER_NAME, points);
+        showRanking();
+    }
 
-    savePlayerPoints(playerName, SIZE_PLAYER_NAME, points);
-    showRanking();
 }
 
 
