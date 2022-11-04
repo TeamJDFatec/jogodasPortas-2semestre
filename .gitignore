@@ -63,4 +63,7 @@ dkms.conf
 bin/
 obj/
 
+## Custom
+ranking.txt
+
 # End of https://www.toptal.com/developers/gitignore/api/c,codeblocks

@@ -6,12 +6,16 @@
 #include <ctype.h>
 
 #define QUESTIONS_PATH "questions.vd"
+#define RANKING_PATH "ranking.txt"
+
 #define POINT_RATE 100
 #define QUANTITY_QUESTIONS 30
 #define QUANTITY_ROUNDS 10
 
 #define TAM_PORTAS 71
 #define TAM_PORTAS_ABERTA 55
+
+#define SIZE_PLAYER_NAME 100
 
 typedef struct
 {
@@ -26,7 +30,7 @@ typedef struct
 
 typedef struct
 {
-    char playerName[100];
+    char playerName[SIZE_PLAYER_NAME];
     int score;
 
 } tRanking;
@@ -372,12 +376,96 @@ void fullScreen()
     system("mode con cols=200 lines=40");
 }
 
+void fillPlayerRanking(tRanking *ranking, char *playerName, int score)
+{
+    for(int i = 0; i < SIZE_PLAYER_NAME; i++)
+    {
+
+        ranking->playerName[i] = playerName[i];
+    }
+
+    ranking->score = score;
+
+}
+
+void showRanking()
+{
+    tRanking playerRanking;
+    FILE *ranking;
+
+    ranking = fopen(RANKING_PATH, "r");
+
+    if(ranking == NULL)
+    {
+        printf("Nenhum ranking para exibir");
+    }
+    else
+    {
+
+        system("cls");
+
+        printf("\n\n******* RANKING *******\n\n");
+
+        fread(&playerRanking, sizeof(tRanking), 1, ranking);
+
+        if(ferror(ranking) != 0)
+        {
+            printf("Erro ao gravar ranking");
+        }
+
+        while(!feof(ranking))
+        {
+
+            printf("\nPlayer: %s", playerRanking.playerName);
+            printf("Score: %d\n\n", playerRanking.score);
+
+            fread(&playerRanking, sizeof(tRanking), 1, ranking);
+        }
+
+    }
+
+    system("pause");
+
+    fclose(ranking);
+
+}
+
+void savePlayerPoints(char *playerName, int sizeName, int points)
+{
+    tRanking playerRanking;
+    FILE *ranking;
+
+    ranking = fopen(RANKING_PATH, "a");
+
+    if(ranking == NULL)
+    {
+        printf("Não foi possível salvar o ranking");
+    }
+    else
+    {
+        fillPlayerRanking(&playerRanking, playerName, points);
+
+        fwrite(&playerRanking, sizeof(tRanking), 1, ranking);
+
+        if(ferror(ranking) != 0)
+        {
+            printf("Erro ao gravar ranking");
+        }
+
+    }
+
+    fclose(ranking);
+
+
+}
+
 void play()
 {
     FILE *map;
     tQuestions qs[QUANTITY_QUESTIONS];
     setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
 
+    char playerName[SIZE_PLAYER_NAME];
     int playing = 1;
     int points = 0;
     int round = 0;
@@ -483,6 +571,14 @@ void play()
 
     }while(playing);
 
+
+    printf("\n\nParabens, você terminou o jogo!\n");
+    printf("\nDigite seu nome para o Ranking: ");
+    fflush(stdin);
+    fgets(playerName, SIZE_PLAYER_NAME, stdin);
+
+    savePlayerPoints(playerName, SIZE_PLAYER_NAME, points);
+    showRanking();
 }
 
 
@@ -499,12 +595,13 @@ void menu()
 
         printf("\t1 - Jogar\n");
         printf("\t2 - Tutorial\n");
-        printf("\t3 - Sair\n");
+        printf("\t3 - Ranking\n");
+        printf("\t4 - Sair\n");
 
         fflush(stdin);
         scanf("%d", &choice);
 
-        if(choice == 3)
+        if(choice == 4)
         {
             confirmExit();
         }
@@ -519,6 +616,9 @@ void menu()
                 tutorial();
                 bContinue = 1;
                 break;
+            case 3:
+                showRanking();
+                bContinue = 1;
             default:
                 bContinue = 1;
                 break;
