@@ -8,7 +8,7 @@
 #define QUESTIONS_PATH "questions.vd"
 #define POINT_RATE 100
 #define QUANTITY_QUESTIONS 30
-#define QUANTITY_ROUNDS 10
+#define QUANTITY_ROUNDS QUANTITY_QUESTIONS/3
 
 #define TAM_PORTAS 71
 #define TAM_PORTAS_ABERTA 55
@@ -31,35 +31,35 @@ typedef struct
 
 } tRanking;
 
-int questionAlreadyViewed(int *viwedQuestions, int question, int round)
+int randomQuestion(int limite, int *val_used, int aux)
 {
+    srand(time(NULL));
 
-    for(int i = 0; i <= round; i++)
+    int val;
+
+    val = rand() % limite;
+
+    if(aux == 0)
     {
-        if(question == viwedQuestions[i])
+        for(int i = 0; i < QUANTITY_QUESTIONS; i++)
         {
-            return 1;
+            //deixando todos os valores como nulos para que nao haja erro.
+            val_used[i] = -1;
         }
     }
 
-    return 0;
-}
-
-int randomQuestion(int limite, int round)
-{
-    srand(time(NULL));
-    int qs;
-    int qs_used[QUANTITY_QUESTIONS];
-
-    do
+    for(int j = 0; j < QUANTITY_QUESTIONS; j++)
     {
-        qs = rand() % limite;
+        if(val == val_used[j])
+        {
+            val = rand() % limite;
+            j = 0;
+        }
+    }
 
-    }while(questionAlreadyViewed(qs_used, qs, round));
+    val_used[aux] = val;
 
-    qs_used[round] = qs;
-
-    return qs;
+    return val;
 }
 
 void splitData(char *line, int line_tam, tQuestions *question, int qsLine)
@@ -372,11 +372,36 @@ void fullScreen()
     system("mode con cols=200 lines=40");
 }
 
+int pauseGame()
+{
+    int choose;
+    system("cls");
+
+    printf("1 - Resume\n");
+    printf("2 - Exit");
+    scanf("%d", &choose);
+
+    switch(choose)
+    {
+        case 1:
+            return 1;
+            break;
+        case 2:
+            return 0;
+            break;
+    }
+}
+
 void play()
 {
     FILE *map;
     tQuestions qs[QUANTITY_QUESTIONS];
     setUpQuestions(qs, QUANTITY_QUESTIONS - 1);
+
+    int val_used[QUANTITY_QUESTIONS];
+    int aux_para_aleatoriedade = 0;
+
+    char ch;
 
     int playing = 1;
     int points = 0;
@@ -392,10 +417,12 @@ void play()
 
     do
     {
-
-        questionDoor1 = randomQuestion(QUANTITY_QUESTIONS - 1, round);
-        questionDoor2 = randomQuestion(QUANTITY_QUESTIONS - 1, round);
-        questionDoor3 = randomQuestion(QUANTITY_QUESTIONS - 1, round);
+        questionDoor1 = randomQuestion(QUANTITY_QUESTIONS, val_used, aux_para_aleatoriedade);
+        aux_para_aleatoriedade ++;
+        questionDoor2 = randomQuestion(QUANTITY_QUESTIONS, val_used, aux_para_aleatoriedade);
+        aux_para_aleatoriedade ++;
+        questionDoor3 = randomQuestion(QUANTITY_QUESTIONS, val_used, aux_para_aleatoriedade);
+        aux_para_aleatoriedade ++;
 
         do
 
@@ -473,12 +500,23 @@ void play()
 
         round++;
 
-        if(round + 1 == QUANTITY_ROUNDS)
+        if(round + 1 == QUANTITY_ROUNDS + 1)
         {
             playing = 0;
         }
 
-            getch();
+        //getch();
+
+        if(!kbhit())
+        {
+            printf("\n\nPressione uma tecla qualquer para continuar ou ESC para pausar!\n");
+            ch = getch();
+
+            if((int)ch == 27)
+            {
+                playing = pauseGame();
+            }
+        }
 
 
     }while(playing);
